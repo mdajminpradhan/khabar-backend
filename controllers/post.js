@@ -1,10 +1,5 @@
 const Post = require('../models/post');
 const fs = require('fs')
-const { validationResult } = require('express-validator');
-
-exports.testroute = (req, res) => {
-	//
-}
 
 // product parameter
 exports.getPostById = (req, res, next, id) => {
@@ -22,14 +17,7 @@ exports.getPostById = (req, res, next, id) => {
 
 // create post
 exports.createPost = (req, res) => {
-	// getting errors
-	const errors = validationResult(req);
 
-	if (!errors.isEmpty()) {
-		return res.status(422).json({
-			error: errors.array()[0].msg
-		});
-	}
 
 	// assigning incoming data to schema
 	const post = new Post(req.body);
@@ -51,14 +39,7 @@ exports.createPost = (req, res) => {
 
 // update post
 exports.updatePost = (req, res) => {
-	// getting errors
-	const errors = validationResult(req);
 
-	if (!errors.isEmpty()) {
-		return res.status(422).json({
-			error: errors.array()[0].msg
-		});
-	}
 
 	// database info of post
 	let post = req.post;

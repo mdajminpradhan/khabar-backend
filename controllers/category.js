@@ -2,8 +2,6 @@ const Category = require('../models/category');
 const fs = require('fs');
 const Joi = require('joi');
 
-const { validationResult } = require('express-validator');
-
 // category param
 exports.getCategoryById = (req, res, next, id) => {
 	Category.findById(id).exec((error, category) => {

@@ -1,5 +1,6 @@
-const { validationResult } = require('express-validator');
 const Category = require('../models/postcategory');
+const fs = require('fs');
+const Joi = require('joi');
 
 // category param
 exports.getCategoryById = (req, res, next, id) => {
@@ -17,22 +18,32 @@ exports.getCategoryById = (req, res, next, id) => {
 
 // create category
 exports.createCategory = (req, res) => {
-	// getting errors
-	const errors = validationResult(req);
+	// data validation
 
-	if (!errors.isEmpty()) {
+	const schema = Joi.object({
+		title: Joi.string().min(3).max(15).required().messages({
+			'string.base': `"Category" should be a type of 'text'`,
+			'string.empty': `"Category" cannot be an empty field`,
+			'string.min': `"Category" should have a minimum length of {#limit}`,
+			'any.required': `"Category" is a required field`
+		})
+	});
+
+	const { error, success } = schema.validate(req.body);
+
+	if (error) {
 		return res.status(422).json({
-			error: errors.array()[0].msg
+			error: error
 		});
 	}
 
 	// saving category in database
 	const category = new Category(req.body);
-
 	category.save((error, category) => {
 		if (error) {
 			return res.status(400).json({
-				error: 'Could not create category'
+				error: 'Could not create category',
+				error
 			});
 		}
 
@@ -58,24 +69,30 @@ exports.getAllCategory = (req, res) => {
 
 // update category
 exports.updateCategory = (req, res) => {
-	// getting errors
-	const errors = validationResult(req);
+	// data validation
 
-	if (!errors.isEmpty()) {
+	const schema = Joi.object({
+		title: Joi.string().min(3).max(15).required().messages({
+			'string.base': `"Category" should be a type of 'text'`,
+			'string.empty': `"Category" cannot be an empty field`,
+			'string.min': `"Category" should have a minimum length of {#limit}`,
+			'any.required': `"Category" is a required field`
+		})
+	});
+
+	const { error, success } = schema.validate(req.body);
+
+	if (error) {
 		return res.status(422).json({
-			error: errors.array()[0].msg
+			error: error
 		});
 	}
 
-	// getting category from parameter
-	const category = req.category;
-
-	// setting category comming from front-end
+	let category = req.category;
 	category.title = req.body.title;
 
-
 	// updating category
-	category.save((error, updatedCategory) => {
+	category.save((error, cate) => {
 		if (error) {
 			return res.status(400).json({
 				error: 'Could not update your category',
@@ -84,7 +101,7 @@ exports.updateCategory = (req, res) => {
 		}
 
 		// sending response
-		res.json(updatedCategory);
+		res.json(cate);
 	});
 };
 
@@ -93,13 +110,7 @@ exports.deleteCategory = (req, res) => {
 	// getting category from parameter
 	const category = req.category;
 
-	// if no category found on the id
-	if (!category) {
-		return res.status(400).json({
-			error: 'No category found'
-		});
-	}
-
+	// deleting category from database
 	category.remove((error, deletedCategory) => {
 		if (error) {
 			return res.status(400).json({
