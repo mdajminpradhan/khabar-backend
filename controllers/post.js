@@ -16,7 +16,6 @@ exports.getPostById = (req, res, next, id) => {
 		}
 
 		req.post = post;
-		console.log(req.post);
 		next();
 	});
 };

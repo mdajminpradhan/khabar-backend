@@ -1,47 +1,44 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const upload = multer({ dest: 'photos/products' });
+const upload = multer({
+	storage: multer.diskStorage({})
+});
 
-const { check } = require('express-validator');
+const { isSignedIn, isAuthenticated, isAdmin, getProfileById } = require('../controllers/user');
 
-const { createProduct, getProductById, updateProduct, getProduct, deleteProduct, getAllProduct } = require('../controllers/product');
+const {
+	createProduct,
+	getProductById,
+	updateProduct,
+	getProduct,
+	deleteProduct,
+	getAllProduct
+} = require('../controllers/product');
+
+// profile param
+router.param('profileId', getProfileById);
 
 // product parameter
 router.param('productId', getProductById);
 
 // create product route
 router.post(
-	'/product/create',
+	'/product/create/:profileId',
+	isSignedIn,
+	isAuthenticated,
+	isAdmin,
 	upload.single('picture'),
-	[
-		check('title').isLength({ min: 5, max: 50 }).withMessage('Title should be between 5 - 50 characters'),
-		check('shortdescription')
-			.isLength({ min: 5, max: 200 })
-			.withMessage('Title should be between 5 - 200 characters'),
-		check('price').isNumeric().withMessage('Price should be in number'),
-		check('price').isLength({ min: 1, max: 6 }).withMessage('Price should be between 1 - 6 characters'),
-		check('longdescription').isLength({ min: 15, max: 1000 }).withMessage('Price should be between 1 - 6 characters'),
-		check('category').not().isEmpty().withMessage('Category is required'),
-		check('picture').isEmpty().withMessage('Picture is required')
-	],
 	createProduct
 );
 
 // update product
 router.put(
-	'/product/update/:productId',
+	'/product/update/:productId/:profileId',
+	isSignedIn,
+	isAuthenticated,
+	isAdmin,
 	upload.single('picture'),
-	[
-		check('title').isLength({ min: 5, max: 50 }).withMessage('Title should be between 5 - 50 characters'),
-		check('shortdescription')
-			.isLength({ min: 5, max: 200 })
-			.withMessage('Title should be between 5 - 200 characters'),
-		check('price').isNumeric().withMessage('Price should be in number'),
-		check('price').isLength({ min: 1, max: 6 }).withMessage('Price should be between 1 - 6 characters'),
-		check('category').not().isEmpty().withMessage('Category is required'),
-		check('picture').isEmpty().withMessage('Picture is required')
-	],
 	updateProduct
 );
 
@@ -49,9 +46,9 @@ router.put(
 router.get('/product/:productId', getProduct);
 
 // get all product
-router.get('/products', getAllProduct)
+router.get('/products', getAllProduct);
 
 // delte product
-router.delete('/product/delete/:productId', deleteProduct);
+router.delete('/product/delete/:productId/:profileId', isSignedIn, isAuthenticated, isAdmin, deleteProduct);
 
 module.exports = router;

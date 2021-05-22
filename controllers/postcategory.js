@@ -73,7 +73,6 @@ exports.updateCategory = (req, res) => {
 	// setting category comming from front-end
 	category.title = req.body.title;
 
-	console.log(req.body);
 
 	// updating category
 	category.save((error, updatedCategory) => {
