@@ -1,7 +1,5 @@
 const Product = require('../models/product');
-const fs = require('fs');
 const Joi = require('joi');
-const { validationResult } = require('express-validator');
 var cloudinary = require('cloudinary').v2;
 cloudinary.config({
 	cloud_name: 'dtowxusgn',

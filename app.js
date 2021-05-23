@@ -27,19 +27,19 @@ mongoose
 
 // bringing all routes
 
+const user = require('./routes/user');
 const product = require('./routes/product')
 const category = require('./routes/category');
 const postcategory = require('./routes/postcategory');
 const post = require('./routes/post');
-const user = require('./routes/user');
 
 // making api
 
+app.use('/api', user);
 app.use('/api', product);
 app.use('/api', category);
 app.use('/api', postcategory);
 app.use('/api', post);
-app.use('/api', user);
 
 // assigning port
 
