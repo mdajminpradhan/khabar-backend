@@ -4,7 +4,8 @@ const router = express.Router();
 const {
 	createAccount,
 	loginAccount,
-	getProfileById
+	getProfileById,
+	logoutAccount
 } = require('../controllers/user');
 
 // get profile by id
@@ -15,5 +16,8 @@ router.post('/createaccount', createAccount);
 
 // login account
 router.post('/loginaccount', loginAccount);
+
+// logout account
+router.get('/logoutaccount', logoutAccount);
 
 module.exports = router;

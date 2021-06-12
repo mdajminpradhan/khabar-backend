@@ -125,6 +125,14 @@ exports.loginAccount = (req, res) => {
 	});
 };
 
+// signout route
+exports.logoutAccount = (req, res) => {
+	res.clearCookie('token');
+	// res.json({
+	// 	message: 'You have logged out sucessfully...'
+	// });
+};
+
 // checking login status
 exports.isSignedIn = expressJWT({
 	secret: process.env.SECRET,
