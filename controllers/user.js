@@ -21,6 +21,8 @@ exports.getProfileById = (req, res, next, id) => {
 
 // create account
 exports.createAccount = (req, res) => {
+	console.log(req.body);
+
 	// validation schema
 	const schema = Joi.object({
 		email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: [ 'com', 'net' ] } }),
@@ -33,9 +35,16 @@ exports.createAccount = (req, res) => {
 
 	// response
 	if (error) {
-		return res.status(422).json({
-			error: error
-		});
+		if (error.details[0].path == 'email') {
+			return res.status(422).json({
+				error: "Email address isn't valid"
+			});
+		} else if (error.details[0].path == 'password') {
+			return res.status(422).json({
+				error:
+					'Password should be at least 8 character. It must have 1 uppercase, 1 lower case and 1 special character'
+			});
+		}
 	} else {
 		// extracting email from request
 		const { email } = req.body;
@@ -60,12 +69,16 @@ exports.createAccount = (req, res) => {
 			user.save((error, user) => {
 				if (error) {
 					return res.status(422).json({
-						erro: 'Something went wrong',
+						error: 'Something went wrong',
 						error
 					});
 				}
 
-				res.json(user);
+				user.password = undefined;
+				user.createdAt = undefined;
+				user.updatedAt = undefined;
+				user.__v = undefined;
+				res.json({ user: user });
 			});
 		});
 	}
@@ -116,7 +129,7 @@ exports.loginAccount = (req, res) => {
 exports.isSignedIn = expressJWT({
 	secret: process.env.SECRET,
 	userProperty: 'auth',
-	algorithms: [ 'SHA1','RS256', 'HS256' ],
+	algorithms: [ 'SHA1', 'RS256', 'HS256' ]
 });
 
 // checking authentication
