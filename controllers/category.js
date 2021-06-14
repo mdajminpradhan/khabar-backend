@@ -1,5 +1,4 @@
 const Category = require('../models/category');
-const fs = require('fs');
 const Joi = require('joi');
 
 // category param
@@ -18,7 +17,7 @@ exports.getCategoryById = (req, res, next, id) => {
 
 // create category
 exports.createCategory = (req, res) => {
-	console.log(req.body)
+	console.log(req.body);
 	// data validation
 
 	const schema = Joi.object({
@@ -68,6 +67,11 @@ exports.getAllCategory = (req, res) => {
 	});
 };
 
+// get category by id
+exports.getCat = (req, res) => {
+	return res.json(req.category);
+};
+
 // update category
 exports.updateCategory = (req, res) => {
 	// data validation
@@ -85,7 +89,7 @@ exports.updateCategory = (req, res) => {
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 

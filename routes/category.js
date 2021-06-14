@@ -9,7 +9,8 @@ const {
 	getCategoryById,
 	getAllCategory,
 	updateCategory,
-	deleteCategory
+	deleteCategory,
+	getCat
 } = require('../controllers/category');
 
 // profile param
@@ -23,6 +24,9 @@ router.post('/category/create/:profileId', isSignedIn, isAuthenticated, isAdmin,
 
 // getting categories
 router.get('/categories', getAllCategory);
+
+// get category by id
+router.get('/category/:categoryId', getCat)
 
 // updating category
 router.put('/category/update/:categoryId/:profileId', isSignedIn, isAuthenticated, isAdmin, updateCategory);
