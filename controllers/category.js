@@ -18,6 +18,7 @@ exports.getCategoryById = (req, res, next, id) => {
 
 // create category
 exports.createCategory = (req, res) => {
+	console.log(req.body)
 	// data validation
 
 	const schema = Joi.object({
@@ -33,7 +34,7 @@ exports.createCategory = (req, res) => {
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 

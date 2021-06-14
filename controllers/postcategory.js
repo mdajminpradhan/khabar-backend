@@ -33,7 +33,7 @@ exports.createCategory = (req, res) => {
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 
@@ -67,6 +67,11 @@ exports.getAllCategory = (req, res) => {
 	});
 };
 
+// get category by id
+exports.getCat = (req, res) => {
+	return res.json(req.category);
+}
+
 // update category
 exports.updateCategory = (req, res) => {
 	// data validation
@@ -84,7 +89,7 @@ exports.updateCategory = (req, res) => {
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 
