@@ -1,4 +1,4 @@
-const express = require('express');
+ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const upload = multer({
@@ -7,7 +7,7 @@ const upload = multer({
 
 const { isSignedIn, isAuthenticated, isAdmin, getProfileById } = require('../controllers/user');
 
-const { createPost, getPostById, updatePost, getPost, deletePost, getAllPost } = require('../controllers/post');
+const { createPost, getPostById, updatePost, getPost, deletePost, getAllPost, getPostPicture } = require('../controllers/post');
 
 // profile param
 router.param('profileId', getProfileById);
@@ -33,6 +33,9 @@ router.get('/post/:postId', getPost);
 
 // get all post
 router.get('/posts', getAllPost);
+
+// get post picture
+router.get('/postpicture/:postId', getPostPicture)
 
 // delete post
 router.delete('/post/delete/:postId/:profileId', isSignedIn, isAuthenticated, isAdmin, deletePost);

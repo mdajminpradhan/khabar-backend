@@ -23,6 +23,19 @@ exports.getPostById = (req, res, next, id) => {
 
 // create post
 exports.createPost = (req, res) => {
+	//  destructering req.body object
+	const { title, category, author, description, tags } = req.body;
+
+	const reqbody = {
+		title: title,
+		category: JSON.parse(category),
+		author: author,
+		description: description,
+		tags: JSON.parse(tags)
+	};
+
+	console.log(reqbody);
+
 	// post validation
 	const schema = Joi.object({
 		title: Joi.string().min(10).max(100).required().messages({
@@ -33,36 +46,36 @@ exports.createPost = (req, res) => {
 			'any.required': `"Title" is a required field`
 		}),
 
-		category: Joi.string().min(5).max(70).required().messages({
-			'string.empty': `"Category" cannot be an empty field`
-		}),
-
-		date: Joi.date().required().messages({
-			'string.empty': `"Category" cannot be an empty field`
+		category: Joi.array().min(1).max(15).required().messages({
+			'string.base': `"Category" should be a type of 'array'`,
+			'string.empty': `"Category" cannot be an empty field`,
+			'string.min': `"Category" should have a minimum length of {#limit}`,
+			'string.max': `"Category" shouldn't be more than {#limit} characters`,
+			'any.required': `"Category" is a required field`
 		}),
 
 		author: Joi.string().required().messages({
 			'string.empty': `"Title" cannot be an empty field`
 		}),
 
-		description: Joi.string().min(15).max(1000).required().messages({
-			'string.base': `"Long description" should be a type of 'text'`,
-			'string.empty': `"Long description" cannot be an empty field`,
-			'string.min': `"Long description" should have a minimum length of {#limit}`,
-			'string.max': `"Long description" shouldn't be more than {#limit} characters`,
-			'any.required': `"Long description" is a required field`
+		description: Joi.string().min(15).max(5000).required().messages({
+			'string.base': `"Post description" should be a type of 'text'`,
+			'string.empty': `"Post description" cannot be an empty field`,
+			'string.min': `"Post description" should have a minimum length of {#limit}`,
+			'string.max': `"Post description" shouldn't be more than {#limit} characters`,
+			'any.required': `"Post description" is a required field`
 		}),
 
-		tags: Joi.array().required().messages({
+		tags: Joi.array().min(1).max(15).required().messages({
 			'string.empty': `"Category" cannot be an empty field`
 		})
 	});
 
-	const { error } = schema.validate(req.body);
+	const { error } = schema.validate(reqbody);
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 
@@ -84,6 +97,7 @@ exports.createPost = (req, res) => {
 	// uploading picture in cloudinary
 	cloudinary.uploader.upload(req.file.path, (error, result) => {
 		if (error) {
+			console.log(error);
 			return res.status(422).json({
 				error: error
 			});
@@ -92,7 +106,7 @@ exports.createPost = (req, res) => {
 		console.log(result);
 
 		// assigning incoming data to schema
-		const post = new Post(req.body);
+		const post = new Post(reqbody);
 		post.picture = result.url;
 		post.pictureid = result.public_id;
 
@@ -105,13 +119,29 @@ exports.createPost = (req, res) => {
 				});
 			}
 
-			res.json(post);
+			res.json({
+				successs: 'Post have been created successfully...'
+			});
 		});
 	});
 };
 
 // update post
 exports.updatePost = (req, res) => {
+
+	console.log(req.body)
+
+	//  destructering req.body object
+	const { title, category, author, description, tags } = req.body;
+
+	const reqbody = {
+		title: title,
+		category: JSON.parse(category),
+		author: author,
+		description: description,
+		tags: JSON.parse(tags)
+	};
+
 	// post validation
 	const schema = Joi.object({
 		title: Joi.string().min(10).max(100).required().messages({
@@ -122,32 +152,32 @@ exports.updatePost = (req, res) => {
 			'any.required': `"Title" is a required field`
 		}),
 
-		category: Joi.string().min(5).max(70).required().messages({
-			'string.empty': `"Category" cannot be an empty field`
-		}),
-
-		date: Joi.date().required().messages({
-			'string.empty': `"Category" cannot be an empty field`
+		category: Joi.array().min(1).max(15).required().messages({
+			'string.base': `"Category" should be a type of 'array'`,
+			'string.empty': `"Category" cannot be an empty field`,
+			'string.min': `"Category" should have a minimum length of {#limit}`,
+			'string.max': `"Category" shouldn't be more than {#limit} characters`,
+			'any.required': `"Category" is a required field`
 		}),
 
 		author: Joi.string().required().messages({
 			'string.empty': `"Title" cannot be an empty field`
 		}),
 
-		description: Joi.string().min(15).max(1000).required().messages({
-			'string.base': `"Long description" should be a type of 'text'`,
-			'string.empty': `"Long description" cannot be an empty field`,
-			'string.min': `"Long description" should have a minimum length of {#limit}`,
-			'string.max': `"Long description" shouldn't be more than {#limit} characters`,
-			'any.required': `"Long description" is a required field`
+		description: Joi.string().min(15).max(5000).required().messages({
+			'string.base': `"Post description" should be a type of 'text'`,
+			'string.empty': `"Post description" cannot be an empty field`,
+			'string.min': `"Post description" should have a minimum length of {#limit}`,
+			'string.max': `"Post description" shouldn't be more than {#limit} characters`,
+			'any.required': `"Post description" is a required field`
 		}),
 
-		tags: Joi.array().required().messages({
+		tags: Joi.array().min(1).max(15).required().messages({
 			'string.empty': `"Category" cannot be an empty field`
 		})
 	});
 
-	const { error } = schema.validate(req.body);
+	const { error } = schema.validate(reqbody);
 
 	if (error) {
 		return res.status(422).json({
@@ -158,16 +188,13 @@ exports.updatePost = (req, res) => {
 	// database info of post
 	let post = req.post;
 
-	// destructuring req.body
-	const { title, category, date, author, description, tags } = req.body;
-
 	// replacing info
-	post.title = title;
-	post.category = category;
-	post.date = date;
-	post.author = author;
-	post.description = description;
-	post.tags = post.tags;
+	post.title = reqbody.title;
+	post.category = reqbody.category;
+	post.date = reqbody.date;
+	post.author = reqbody.author;
+	post.description = reqbody.description;
+	post.tags = reqbody.tags;
 	post.picture = post.picture;
 	post.pictureid = post.pictureid;
 
@@ -231,7 +258,7 @@ exports.getPost = (req, res) => {
 
 // get all post
 exports.getAllPost = (req, res) => {
-	Post.find().exec((error, posts) => {
+	Post.find().select('-picture').exec((error, posts) => {
 		if (error) {
 			return res.status(400).json({
 				error: 'Could not find any posts'
@@ -240,6 +267,12 @@ exports.getAllPost = (req, res) => {
 
 		res.json(posts);
 	});
+};
+
+// get post picture
+exports.getPostPicture = (req, res) => {
+	console.log(req.post.picture);
+	return res.send(req.post.picture);
 };
 
 // delete post

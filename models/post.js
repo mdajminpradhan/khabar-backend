@@ -10,14 +10,12 @@ const productSchema = new mongoose.Schema(
 			trim: true
 		},
 		category: {
-			type: ObjectId,
-			ref: 'BlogCategory'
+			type: [ObjectId],
+			ref: 'PostCategory'
 		},
 		date: {
 			type: Date,
 			default: Date.now(),
-			required: true,
-			trim: true
 		},
 		author: {
 			type: String,
