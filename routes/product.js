@@ -13,7 +13,8 @@ const {
 	updateProduct,
 	getProduct,
 	deleteProduct,
-	getAllProduct
+	getAllProduct,
+	getProductPicture
 } = require('../controllers/product');
 
 // profile param
@@ -47,6 +48,9 @@ router.get('/product/:productId', getProduct);
 
 // get all product
 router.get('/products', getAllProduct);
+
+// get product picture
+router.post('/productpicture', getProductPicture)
 
 // delte product
 router.delete('/product/delete/:productId/:profileId', isSignedIn, isAuthenticated, isAdmin, deleteProduct);

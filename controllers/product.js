@@ -9,6 +9,7 @@ cloudinary.config({
 
 // product parameter
 exports.getProductById = (req, res, next, id) => {
+	console.log(id)
 	Product.findById(id).exec((error, product) => {
 		if (error) {
 			return res.status(400).json({
@@ -23,6 +24,24 @@ exports.getProductById = (req, res, next, id) => {
 
 // create product
 exports.createProduct = (req, res) => {
+	// try {
+	console.log('data', req.body);
+	console.log('file', req.file);
+
+	const { title, category, shortdescription, longdescription, top, price, specialprice } = req.body;
+
+	const reqbody = {
+		title: title,
+		shortdescription: shortdescription,
+		longdescription: longdescription,
+		category: JSON.parse(category),
+		top: top,
+		price: price,
+		specialprice: specialprice
+	};
+
+	console.log(reqbody.category);
+
 	// validation of details
 	const schema = Joi.object({
 		title: Joi.string().min(5).max(70).required().messages({
@@ -41,40 +60,36 @@ exports.createProduct = (req, res) => {
 			'any.required': `"Short description" is a required field`
 		}),
 
-		price: Joi.number().min(1).max(1000).required().messages({
-			'string.base': `"Price" should be a type of 'text'`,
-			'string.empty': `"Price" cannot be an empty field`,
-			'string.min': `"Price" should have a minimum length of {#limit}`,
-			'string.max': `"Price" shouldn't be more than {#limit} characters`,
-			'any.required': `"Price" is a required field`
+		longdescription: Joi.string().min(15).max(2000).required().messages({
+			'string.base': `"Long description" should be a type of 'text'`,
+			'string.empty': `"Long description" cannot be an empty field`,
+			'string.min': `"Long description" should have a minimum length of {#limit}`,
+			'string.max': `"Long description" shouldn't be more than {#limit} characters`,
+			'any.required': `"Long description" is a required field`
 		}),
 
-		regularprice: Joi.number().min(1).max(5).messages({
-			'string.base': `"Regular price" should be a type of 'text'`,
+		top: Joi.boolean(),
+
+		category: Joi.array().min(1).max(10).required(),
+
+		price: Joi.number().min(1).max(100000).messages({
+			'string.base': `"Regular price" should be a type of 'number'`,
 			'string.empty': `"Regular price" cannot be an empty field`,
 			'string.min': `"Regular price" should have a minimum length of {#limit}`,
 			'string.max': `"Regular price" shouldn't be more than {#limit} characters`,
 			'any.required': `"Regular price" is a required field`
 		}),
 
-		category: Joi.string().min(5).max(70).required().messages({
-			'string.empty': `"Category" cannot be an empty field`
-		}),
+		specialprice: Joi.number(),
 
-		longdescription: Joi.string().min(15).max(1000).required().messages({
-			'string.base': `"Long description" should be a type of 'text'`,
-			'string.empty': `"Long description" cannot be an empty field`,
-			'string.min': `"Long description" should have a minimum length of {#limit}`,
-			'string.max': `"Long description" shouldn't be more than {#limit} characters`,
-			'any.required': `"Long description" is a required field`
-		})
+		tags: Joi.array().min(1).max(20).required()
 	});
 
-	const { error } = schema.validate(req.body);
+	const { error } = schema.validate(reqbody);
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 
@@ -104,7 +119,7 @@ exports.createProduct = (req, res) => {
 		console.log(result);
 
 		// assigning incoming data to schema
-		const product = new Product(req.body);
+		const product = new Product(reqbody);
 		product.picture = result.url;
 		product.pictureid = result.public_id;
 
@@ -117,13 +132,30 @@ exports.createProduct = (req, res) => {
 				});
 			}
 
-			res.json(product);
+			console.log(product);
+
+			res.json({ success: 'You have create a product successfully...' });
 		});
 	});
+	// } catch (error) {
+	// 	console.log(error);
+	// }
 };
 
 // update product
 exports.updateProduct = (req, res) => {
+	const { title, category, shortdescription, longdescription, top, price, specialprice } = req.body;
+
+	const reqbody = {
+		title: title,
+		shortdescription: shortdescription,
+		longdescription: longdescription,
+		category: JSON.parse(category),
+		top: top,
+		price: price,
+		specialprice: specialprice
+	};
+
 	// validation of details
 	const schema = Joi.object({
 		title: Joi.string().min(5).max(70).required().messages({
@@ -142,40 +174,36 @@ exports.updateProduct = (req, res) => {
 			'any.required': `"Short description" is a required field`
 		}),
 
-		price: Joi.number().min(1).max(1000).required().messages({
-			'string.base': `"Price" should be a type of 'text'`,
-			'string.empty': `"Price" cannot be an empty field`,
-			'string.min': `"Price" should have a minimum length of {#limit}`,
-			'string.max': `"Price" shouldn't be more than {#limit} characters`,
-			'any.required': `"Price" is a required field`
+		longdescription: Joi.string().min(15).max(2000).required().messages({
+			'string.base': `"Long description" should be a type of 'text'`,
+			'string.empty': `"Long description" cannot be an empty field`,
+			'string.min': `"Long description" should have a minimum length of {#limit}`,
+			'string.max': `"Long description" shouldn't be more than {#limit} characters`,
+			'any.required': `"Long description" is a required field`
 		}),
 
-		regularprice: Joi.number().min(1).max(5).messages({
-			'string.base': `"Regular price" should be a type of 'text'`,
+		top: Joi.boolean(),
+
+		category: Joi.array().min(1).max(10).required(),
+
+		price: Joi.number().min(1).max(100000).messages({
+			'string.base': `"Regular price" should be a type of 'number'`,
 			'string.empty': `"Regular price" cannot be an empty field`,
 			'string.min': `"Regular price" should have a minimum length of {#limit}`,
 			'string.max': `"Regular price" shouldn't be more than {#limit} characters`,
 			'any.required': `"Regular price" is a required field`
 		}),
 
-		category: Joi.string().min(5).max(70).required().messages({
-			'string.empty': `"Category" cannot be an empty field`
-		}),
+		specialprice: Joi.number(),
 
-		longdescription: Joi.string().min(15).max(1000).required().messages({
-			'string.base': `"Long description" should be a type of 'text'`,
-			'string.empty': `"Long description" cannot be an empty field`,
-			'string.min': `"Long description" should have a minimum length of {#limit}`,
-			'string.max': `"Long description" shouldn't be more than {#limit} characters`,
-			'any.required': `"Long description" is a required field`
-		})
+		tags: Joi.array().min(1).max(20).required()
 	});
 
-	const { error } = schema.validate(req.body);
+	const { error } = schema.validate(reqbody);
 
 	if (error) {
 		return res.status(422).json({
-			error: error
+			error: error.details[0].message
 		});
 	}
 
@@ -183,14 +211,15 @@ exports.updateProduct = (req, res) => {
 	let product = req.product;
 
 	// destructuring req.body
-	const { title, shortdescription, price, reqgularprice, category } = req.body;
 
 	// replacing info
-	product.title = title;
-	product.shortdescription = shortdescription;
-	product.price = price;
-	product.reqgularprice = reqgularprice;
-	product.category = category;
+	product.title = reqbody.title;
+	product.shortdescription = reqbody.shortdescription;
+	product.longdescription = reqbody.longdescription;
+	product.category = reqbody.category;
+	product.top = reqbody.top;
+	product.price = reqbody.price;
+	product.specialprice = reqbody.specialprice;
 	product.picture = product.picture;
 	product.pictureid = product.pictureid;
 
@@ -228,7 +257,7 @@ exports.updateProduct = (req, res) => {
 						});
 					}
 
-					res.json(product);
+					res.json({ success: 'You have updated a product successfully...' });
 				});
 			});
 		}
@@ -249,6 +278,7 @@ exports.updateProduct = (req, res) => {
 
 // getting product
 exports.getProduct = (req, res) => {
+	req.product.picture = undefined;
 	return res.json(req.product);
 };
 
@@ -262,6 +292,19 @@ exports.getAllProduct = (req, res) => {
 		}
 
 		res.json(products);
+	});
+};
+
+// get post picture
+exports.getProductPicture = (req, res) => {
+	Product.findById(req.body.id).exec((error, product) => {
+		if (error) {
+			return res.status(422).json({
+				error: error
+			});
+		}
+
+		res.json({ picture: product.picture });
 	});
 };
 

@@ -1,6 +1,11 @@
 const Category = require('../models/postcategory');
-const fs = require('fs');
 const Joi = require('joi');
+var cloudinary = require('cloudinary').v2;
+cloudinary.config({
+	cloud_name: 'dtowxusgn',
+	api_key: '959958128578987',
+	api_secret: 'jCtiFZy7QV6MuiT5-K1V4vSxOzk'
+});
 
 // category param
 exports.getCategoryById = (req, res, next, id) => {
@@ -18,8 +23,9 @@ exports.getCategoryById = (req, res, next, id) => {
 
 // create category
 exports.createCategory = (req, res) => {
-	// data validation
+	console.log(req.file);
 
+	// data validation
 	const schema = Joi.object({
 		title: Joi.string().min(3).max(15).required().messages({
 			'string.base': `"Category" should be a type of 'text'`,
@@ -37,18 +43,42 @@ exports.createCategory = (req, res) => {
 		});
 	}
 
+	// if there is no picture uploaded from database
+	if (!req.file) {
+		return res.status(422).json({
+			error: 'Pictures is required'
+		});
+	} else if (req.file.mimetype !== 'image/x-icon') {
+		return res.status(422).json({
+			error: 'Picture type should be png or jpeg or jpg'
+		});
+	}
+
 	// saving category in database
-	const category = new Category(req.body);
-	category.save((error, category) => {
+	cloudinary.uploader.upload(req.file.path, (error, result) => {
 		if (error) {
-			return res.status(400).json({
-				error: 'Could not create category',
-				error
+			console.log(error);
+			return res.status(422).json({
+				error: error
 			});
 		}
 
-		// sending response
-		res.json(category);
+		const category = new Category(req.body);
+
+		category.icon = result.url;
+		category.iconid = result.public_id;
+
+		category.save((error, category) => {
+			if (error) {
+				return res.status(400).json({
+					error: 'Could not create category',
+					error
+				});
+			}
+
+			// sending response
+			res.json(category);
+		});
 	});
 };
 
@@ -70,10 +100,14 @@ exports.getAllCategory = (req, res) => {
 // get category by id
 exports.getCat = (req, res) => {
 	return res.json(req.category);
-}
+};
 
 // update category
 exports.updateCategory = (req, res) => {
+
+	console.log(req.body)
+	console.log(req.file)
+
 	// data validation
 
 	const schema = Joi.object({
@@ -94,19 +128,60 @@ exports.updateCategory = (req, res) => {
 	}
 
 	let category = req.category;
-	category.title = req.body.title;
 
-	// updating category
-	category.save((error, cate) => {
+	// if there is no picture uploaded from database
+	if (!req.file) {
+		category.save((error, category) => {
+			category.title = req.body.title;
+			category.icon = category.icon;
+			category.iconid = category.iconid;
+
+			category.save((error, category) => {
+				if (error) {
+					return res.status(400).json({
+						error: 'Could not create category',
+						error
+					});
+				}
+
+				// sending response
+				res.json(category);
+			});
+		});
+	} else if (
+		req.files.image[0].mimetype !== 'image/png' &&
+		req.files.image[0].mimetype !== 'image/jpeg' &&
+		req.files.image[0].mimetype !== 'image/jpg' &&
+		req.files.icon[1].mimetype !== 'image/vnd.microsoft.icon'
+	) {
+		return res.status(422).json({
+			error: 'Picture type should be png or jpeg or jpg'
+		});
+	}
+
+	// saving category in database
+	cloudinary.uploader.upload(req.files.image[0].path, (error, result) => {
 		if (error) {
-			return res.status(400).json({
-				error: 'Could not update your category',
-				error
+			console.log(error);
+			return res.status(422).json({
+				error: error
 			});
 		}
+		category.title = req.body.title;
+		category.icon = result.url;
+		category.iconid = result.public_id;
 
-		// sending response
-		res.json(cate);
+		category.save((error, category) => {
+			if (error) {
+				return res.status(400).json({
+					error: 'Could not create category',
+					error
+				});
+			}
+
+			// sending response
+			res.json(category);
+		});
 	});
 };
 

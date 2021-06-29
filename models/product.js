@@ -19,12 +19,12 @@ const productSchema = new mongoose.Schema(
 			required: true,
 			trim: true
 		},
-		regularprice: {
+		specialprice: {
 			type: Number,
 			trim: true
 		},
 		category: {
-			type: ObjectId,
+			type: [ObjectId],
 			ref: 'Category'
 		},
 		longdescription: {

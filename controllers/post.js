@@ -128,9 +128,6 @@ exports.createPost = (req, res) => {
 
 // update post
 exports.updatePost = (req, res) => {
-
-	console.log(req.body)
-
 	//  destructering req.body object
 	const { title, category, author, description, tags } = req.body;
 
@@ -253,12 +250,18 @@ exports.updatePost = (req, res) => {
 
 // getting post
 exports.getPost = (req, res) => {
+	req.post.picture = undefined;
 	return res.json(req.post);
 };
 
 // get all post
 exports.getAllPost = (req, res) => {
-	Post.find().select('-picture').exec((error, posts) => {
+
+	let limit = req.body.liimt ? req.body.limit : 12;
+	// let sortBy = req.query.sortBy ? req.query.sortBy : '_id';
+
+
+	Post.find().select('-picture').limit(limit).populate('PostCategory').exec((error, posts) => {
 		if (error) {
 			return res.status(400).json({
 				error: 'Could not find any posts'
@@ -271,8 +274,15 @@ exports.getAllPost = (req, res) => {
 
 // get post picture
 exports.getPostPicture = (req, res) => {
-	console.log(req.post.picture);
-	return res.send(req.post.picture);
+	Post.findById(req.body.id).exec((error, post) => {
+		if (error) {
+			return res.status(422).json({
+				error: error
+			});
+		}
+
+		res.json({ picture: post.picture });
+	});
 };
 
 // delete post

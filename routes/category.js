@@ -1,6 +1,9 @@
 const express = require('express');
-const multer = require('multer');
 const router = express.Router();
+const multer = require('multer');
+const upload = multer({
+	storage: multer.diskStorage({})
+});
 
 const { isSignedIn, isAuthenticated, isAdmin, getProfileById } = require('../controllers/user');
 
@@ -20,13 +23,29 @@ router.param('profileId', getProfileById);
 router.param('categoryId', getCategoryById);
 
 // category create
-router.post('/category/create/:profileId', isSignedIn, isAuthenticated, isAdmin, createCategory);
+router.post(
+	'/category/create/:profileId',
+	isSignedIn,
+	isAuthenticated,
+	isAdmin,
+	upload.fields([
+		{
+			name: 'image',
+			maxCount: 1
+		},
+		{
+			name: 'icon',
+			maxCount: 1
+		}
+	]),
+	createCategory
+);
 
 // getting categories
 router.get('/categories', getAllCategory);
 
 // get category by id
-router.get('/category/:categoryId', getCat)
+router.get('/category/:categoryId', getCat);
 
 // updating category
 router.put('/category/update/:categoryId/:profileId', isSignedIn, isAuthenticated, isAdmin, updateCategory);

@@ -1,5 +1,11 @@
 const Category = require('../models/category');
 const Joi = require('joi');
+var cloudinary = require('cloudinary').v2;
+cloudinary.config({
+	cloud_name: 'dtowxusgn',
+	api_key: '959958128578987',
+	api_secret: 'jCtiFZy7QV6MuiT5-K1V4vSxOzk'
+});
 
 // category param
 exports.getCategoryById = (req, res, next, id) => {
@@ -17,7 +23,7 @@ exports.getCategoryById = (req, res, next, id) => {
 
 // create category
 exports.createCategory = (req, res) => {
-	console.log(req.body);
+
 	// data validation
 
 	const schema = Joi.object({
@@ -37,18 +43,58 @@ exports.createCategory = (req, res) => {
 		});
 	}
 
+	// if there is no picture uploaded from database
+	if (!req.files) {
+		return res.status(422).json({
+			error: 'Pictures is required'
+		});
+	} else if (
+		req.files.image[0].mimetype !== 'image/png' &&
+		req.files.image[0].mimetype !== 'image/jpeg' &&
+		req.files.image[0].mimetype !== 'image/jpg' &&
+		req.files.icon[1].mimetype !== 'image/vnd.microsoft.icon'
+	) {
+		return res.status(422).json({
+			error: 'Picture type should be png or jpeg or jpg'
+		});
+	}
+
 	// saving category in database
-	const category = new Category(req.body);
-	category.save((error, category) => {
+	cloudinary.uploader.upload(req.files.image[0].path, (error, result) => {
 		if (error) {
-			return res.status(400).json({
-				error: 'Could not create category',
-				error
+			console.log(error);
+			return res.status(422).json({
+				error: error
 			});
 		}
 
-		// sending response
-		res.json(category);
+		const category = new Category(req.body);
+		category.image = result.url;
+		category.imageid = result.public_id;
+
+		cloudinary.uploader.upload(req.files.icon[0].path, (error, iconresult) => {
+			if (error) {
+				console.log(error);
+				return res.status(422).json({
+					error: error
+				});
+			}
+
+			category.icon = iconresult.url;
+			category.iconid = iconresult.public_id;
+
+			category.save((error, category) => {
+				if (error) {
+					return res.status(400).json({
+						error: 'Could not create category',
+						error
+					});
+				}
+
+				// sending response
+				res.json(category);
+			});
+		});
 	});
 };
 
