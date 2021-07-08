@@ -18,9 +18,8 @@ const productSchema = new mongoose.Schema(
 			default: Date.now(),
 		},
 		author: {
-			type: String,
-			required: true,
-			trim: true
+			type: ObjectId,
+			ref: 'User',
 		},
 		description: {
 			type: String,

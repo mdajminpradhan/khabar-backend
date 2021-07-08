@@ -9,7 +9,7 @@ cloudinary.config({
 
 // post parameter
 exports.getPostById = (req, res, next, id) => {
-	Post.findById(id).exec((error, post) => {
+	Post.findById(id).populate('author', 'name').populate('category', 'title').exec((error, post) => {
 		if (error) {
 			return res.status(400).json({
 				error: 'No post found'
@@ -261,7 +261,7 @@ exports.getAllPost = (req, res) => {
 	// let sortBy = req.query.sortBy ? req.query.sortBy : '_id';
 
 
-	Post.find().select('-picture').limit(limit).populate('PostCategory').exec((error, posts) => {
+	Post.find().select('-picture').limit(limit).populate('author', 'name').populate('category', 'title').exec((error, posts) => {
 		if (error) {
 			return res.status(400).json({
 				error: 'Could not find any posts'

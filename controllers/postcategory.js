@@ -48,7 +48,12 @@ exports.createCategory = (req, res) => {
 		return res.status(422).json({
 			error: 'Pictures is required'
 		});
-	} else if (req.file.mimetype !== 'image/x-icon') {
+	} else if (
+		req.file.mimetype !== 'image/x-icon' &&
+		req.file.mimetype !== 'image/png' &&
+		req.file.mimetype !== 'image/jpeg' &&
+		req.file.mimetype !== 'image/jpg'
+	) {
 		return res.status(422).json({
 			error: 'Picture type should be png or jpeg or jpg'
 		});
@@ -104,9 +109,8 @@ exports.getCat = (req, res) => {
 
 // update category
 exports.updateCategory = (req, res) => {
-
-	console.log(req.body)
-	console.log(req.file)
+	console.log(req.body);
+	console.log(req.file);
 
 	// data validation
 

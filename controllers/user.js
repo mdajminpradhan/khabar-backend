@@ -21,10 +21,18 @@ exports.getProfileById = (req, res, next, id) => {
 
 // create account
 exports.createAccount = (req, res) => {
+
 	console.log(req.body);
 
 	// validation schema
 	const schema = Joi.object({
+		name: Joi.string().min(3).max(20).required().messages({
+			'string.base': `"Name" should be a type of 'text'`,
+			'string.empty': `"Name" cannot be an empty field`,
+			'string.min': `"Name" should have a minimum length of {#limit}`,
+			'string.max': `"Name" shouldn't be more than {#limit} characters`,
+			'any.required': `"Name" is a required field`
+		}),
 		email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: [ 'com', 'net' ] } }),
 
 		password: Joi.string().pattern(new RegExp('^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$'))
