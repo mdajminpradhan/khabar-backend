@@ -22,7 +22,7 @@ exports.getProfileById = (req, res, next, id) => {
 // create account
 exports.createAccount = (req, res) => {
 
-	console.log(req.body);
+	// console.log(req.body);
 
 	// validation schema
 	const schema = Joi.object({
