@@ -50,7 +50,7 @@ exports.createAccount = (req, res) => {
 		} else if (error.details[0].path == 'password') {
 			return res.status(422).json({
 				error:
-					'Password should be at least 8 character. It must have 1 uppercase, 1 lower case and 1 special character'
+					'Password should be 1 uppercase, 1 lowercase, 1 special char and at least 8 character'
 			});
 		}
 	} else {
