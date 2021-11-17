@@ -6,15 +6,7 @@ const categorySchema = new mongoose.Schema(
 			type: String,
 			required: true
 		},
-		image: {
-			type: String,
-			required: true
-		},
 		icon: {
-			type: String,
-			required: true
-		},
-		imageid: {
 			type: String,
 			required: true
 		},
