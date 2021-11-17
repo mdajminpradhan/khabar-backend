@@ -1,47 +1,66 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const multer = require('multer');
+const multer = require("multer");
 const upload = multer({
-	storage: multer.diskStorage({})
+  storage: multer.diskStorage({}),
 });
 
-const { isSignedIn, isAuthenticated, isAdmin, getProfileById } = require('../controllers/user');
+const {
+  isSignedIn,
+  isAuthenticated,
+  isAdmin,
+  getProfileById,
+} = require("../controllers/user");
 
 const {
-	createCategory,
-	getCategoryById,
-	getAllCategory,
-	updateCategory,
-	deleteCategory,
-	getCat
-} = require('../controllers/postcategory');
+  createCategory,
+  getCategoryById,
+  getAllCategory,
+  updateCategory,
+  deleteCategory,
+  getCat,
+} = require("../controllers/postcategory");
 
 // profile param
-router.param('profileId', getProfileById);
+router.param("profileId", getProfileById);
 
 // category param
-router.param('categoryId', getCategoryById);
+router.param("categoryId", getCategoryById);
 
 // category create
 router.post(
-	'/postcategory/create/:profileId',
-	isSignedIn,
-	isAuthenticated,
-	isAdmin,
-	upload.single('icon'),
-	createCategory
+  "/postcategory/create/:profileId",
+  isSignedIn,
+  isAuthenticated,
+  isAdmin,
+  upload.single("icon"),
+  createCategory
 );
 
 // getting categories
-router.get('/postcategories', getAllCategory);
+router.get("/postcategories", getAllCategory);
 
 // get category by id
-router.get('/postcategory/:categoryId', getCat);
+router.get("/postcategory/:categoryId", getCat);
 
 // updating category
-router.put('/postcategory/update/:categoryId/:profileId', isSignedIn, isAuthenticated, isAdmin, updateCategory);
+upload.single("icon"),
+  router.put(
+    "/postcategory/update/:categoryId/:profileId",
+    upload.single("icon"),
+    isSignedIn,
+    isAuthenticated,
+    isAdmin,
+    updateCategory
+  );
 
 // deleting category
-router.delete('/postcategory/delete/:categoryId/:profileId', isSignedIn, isAuthenticated, isAdmin, deleteCategory);
+router.delete(
+  "/postcategory/delete/:categoryId/:profileId",
+  isSignedIn,
+  isAuthenticated,
+  isAdmin,
+  deleteCategory
+);
 
 module.exports = router;
