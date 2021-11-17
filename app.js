@@ -7,6 +7,7 @@ const app = express();
 
 // middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 // connecting mongodb
@@ -36,14 +37,11 @@ app.use("/api", product);
 app.use("/api", category);
 app.use("/api", postcategory);
 app.use("/api", post);
-app.get('/', (req, res) => {
-  res.send('hey its working man')
-})
-
+ 
 // assigning port
 const port = process.env.PORT || 5000;
 
-// creating server 
+// creating server
 app.listen(port, () => {
   console.log("Server started successfully...");
 });
