@@ -32,7 +32,7 @@ const productSchema = new mongoose.Schema(
 			required: true,
 			trim: true
 		},
-		top: {
+		isFeatured: {
 			type: Boolean,
 			default: false,
 		},
