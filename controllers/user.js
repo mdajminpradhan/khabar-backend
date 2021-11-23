@@ -10,7 +10,7 @@ exports.getProfileById = (req, res, next, id) => {
 	User.findById(id).exec((error, user) => {
 		if (error || !user) {
 			return res.status(422).json({
-				error: 'NO user found'
+				error: 'No user found'
 			});
 		}
 
@@ -105,6 +105,8 @@ exports.loginAccount = (req, res) => {
 			});
 		}
 
+		console.log(user)
+
 		// comparging password
 		const comparedPassword = bcrypt.compareSync(req.body.password, user.password);
 
@@ -120,11 +122,12 @@ exports.loginAccount = (req, res) => {
 			res.cookie('token', token, { expire: new Date() + 9999 });
 
 			// sending response
-			const { _id, email, role } = user;
+			const { _id, name, email, role } = user;
 			res.json({
 				token: token,
 				user: {
 					_id,
+					name,
 					email,
 					role
 				}

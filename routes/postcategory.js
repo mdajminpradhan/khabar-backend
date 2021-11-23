@@ -44,15 +44,14 @@ router.get("/postcategories", getAllCategory);
 router.get("/postcategory/:categoryId", getCat);
 
 // updating category
-upload.single("icon"),
-  router.put(
-    "/postcategory/update/:categoryId/:profileId",
-    upload.single("icon"),
-    isSignedIn,
-    isAuthenticated,
-    isAdmin,
-    updateCategory
-  );
+router.put(
+  "/postcategory/update/:categoryId/:profileId",
+  upload.single("icon"),
+  isSignedIn,
+  isAuthenticated,
+  isAdmin,
+  updateCategory
+);
 
 // deleting category
 router.delete(

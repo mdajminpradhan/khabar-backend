@@ -10,6 +10,7 @@ const { isSignedIn, isAuthenticated, isAdmin, getProfileById } = require('../con
 const {
 	createPost,
 	getPostById,
+	getPostIdWithoutCateDetails,
 	updatePost,
 	getPost,
 	deletePost,
@@ -20,15 +21,18 @@ const {
 // profile param
 router.param('profileId', getProfileById);
 
-// // post parameter
+// post parameter
 router.param('postId', getPostById);
+
+// post parameter
+router.param('postIdWithoutCateDetails', getPostIdWithoutCateDetails);
 
 // // create post route
 router.post('/post/create/:profileId', isSignedIn, isAuthenticated, isAdmin, upload.single('picture'), createPost);
 
 // // update post
 router.put(
-	'/post/update/:postId/:profileId',
+	'/post/update/:postIdWithoutCateDetails/:profileId',
 	isSignedIn,
 	isAuthenticated,
 	isAdmin,
@@ -39,8 +43,11 @@ router.put(
 // getting a post
 router.get('/post/:postId', getPost);
 
+// getting a post
+router.get('/post/withoutcatedetails/:postIdWithoutCateDetails', getPost);
+
 // get all post
-router.post('/posts', getAllPost);
+router.get('/posts', getAllPost);
 
 // get post picture
 router.post('/postpicture', getPostPicture);

@@ -9,7 +9,6 @@ cloudinary.config({
 
 // product parameter
 exports.getProductById = (req, res, next, id) => {
-  console.log(id);
   Product.findById(id).exec((error, product) => {
     if (error) {
       return res.status(400).json({
@@ -24,10 +23,6 @@ exports.getProductById = (req, res, next, id) => {
 
 // create product
 exports.createProduct = (req, res) => {
-  // try {
-  console.log("data", req.body);
-  console.log("file", req.file);
-
   // validation of details
   const schema = Joi.object({
     title: Joi.string().min(5).max(70).required().messages({
@@ -99,7 +94,7 @@ exports.createProduct = (req, res) => {
         return res.status(422).json({
           error: error,
         });
-      }	
+      }
 
       // console.log(result);
 
@@ -127,28 +122,10 @@ exports.createProduct = (req, res) => {
 
 // update product
 exports.updateProduct = (req, res) => {
-  const {
-    title,
-    category,
-    shortdescription,
-    longdescription,
-    top,
-    price,
-    specialprice,
-  } = req.body;
-
-  const reqbody = {
-    title: title,
-    shortdescription: shortdescription,
-    longdescription: longdescription,
-    category: JSON.parse(category),
-    top: top,
-    price: price,
-    specialprice: specialprice,
-  };
-
   // validation of details
   const schema = Joi.object({
+    _id: Joi.string(),
+
     title: Joi.string().min(5).max(70).required().messages({
       "string.base": `"Title" should be a type of 'text'`,
       "string.empty": `"Title" cannot be an empty field`,
@@ -173,7 +150,10 @@ exports.updateProduct = (req, res) => {
       "any.required": `"Long description" is a required field`,
     }),
 
-    top: Joi.boolean(),
+    picture: Joi.string(),
+    pictureid: Joi.string(),
+
+    isFeatured: Joi.boolean(),
 
     category: Joi.array().min(1).max(10).required(),
 
@@ -187,89 +167,78 @@ exports.updateProduct = (req, res) => {
 
     specialprice: Joi.number(),
 
-    tags: Joi.array().min(1).max(20).required(),
+    // tags: Joi.array().min(1).max(20).required(),
   });
 
-  const { error } = schema.validate(reqbody);
+  console.log(req.body);
+
+  const { error } = schema.validate(req.body);
 
   if (error) {
     return res.status(422).json({
       error: error.details[0].message,
     });
-  }
-
-  // database info of product
-  let product = req.product;
-
-  // destructuring req.body
-
-  // replacing info
-  product.title = reqbody.title;
-  product.shortdescription = reqbody.shortdescription;
-  product.longdescription = reqbody.longdescription;
-  product.category = reqbody.category;
-  product.top = reqbody.top;
-  product.price = reqbody.price;
-  product.specialprice = reqbody.specialprice;
-  product.picture = product.picture;
-  product.pictureid = product.pictureid;
-
-  // picture validation
-  if (req.file) {
-    if (
-      req.file.mimetype !== "image/png" &&
-      req.file.mimetype !== "image/jpeg" &&
-      req.file.mimetype !== "image/jpg"
-    ) {
-      return res.status(422).json({
-        error: "Picture type should be png or jpeg or jpg",
-      });
-    } else {
-      cloudinary.uploader.destroy(product.pictureid);
-
-      // uploading picture in cloudinary
-      cloudinary.uploader.upload(req.file.path, (error, result) => {
-        if (error) {
-          return res.status(422).json({
-            error: error,
-          });
-        }
-
-        // assigning incoming data to schema
-        product.picture = result.url;
-        product.pictureid = result.public_id;
-
-        // saving product to database
-        product.save((error, product) => {
-          if (error) {
+  } else {
+    if (!req.file) {
+      Product.findByIdAndUpdate(
+        { _id: req.product._id },
+        { $set: req.body },
+        { new: true, useFindAndModify: false },
+        (err, product) => {
+          if (err) {
             return res.status(400).json({
-              error: "Could not create product",
-              error,
+              error: "You are not able to update this product",
             });
           }
-
-          res.json({ success: "You have updated a product successfully..." });
+          res.json(product);
+        }
+      );
+    } else if (req.file) {
+      if (
+        req.file.mimetype !== "image/png" &&
+        req.file.mimetype !== "image/jpeg" &&
+        req.file.mimetype !== "image/jpg"
+      ) {
+        return res.status(422).json({
+          error: "Picture type should be png or jpeg or jpg",
         });
-      });
-    }
-  } else {
-    // saving product to database
-    product.save((error, product) => {
-      if (error) {
-        return res.status(400).json({
-          error: "Could not create product",
-          error,
+      } else {
+        // uploading picture in cloudinary
+        cloudinary.uploader.upload(req.file.path, (error, result) => {
+          if (error) {
+            return res.status(422).json({
+              error: error,
+            });
+          } else if (result) {
+            cloudinary.uploader.destroy(req.product.pictureid);
+            req.body.pictureid = result.public_id;
+            Product.findByIdAndUpdate(
+              { _id: req.product._id },
+              { $set: req.body },
+              { new: true, useFindAndModify: false },
+              (err, product) => {
+                if (err) {
+                  return res.status(400).json({
+                    error: "You are not authorized to update this user",
+                  });
+                }
+                res.json(product);
+              }
+            );
+          }
         });
       }
-
-      res.json(product);
-    });
+    }
   }
 };
 
 // getting product
 exports.getProduct = (req, res) => {
   req.product.picture = undefined;
+  req.product.createdAt = undefined;
+  req.product.updatedAt = undefined;
+  req.product.__v = undefined;
+
   return res.json(req.product);
 };
 
